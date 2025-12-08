@@ -246,73 +246,75 @@ const Dashboard = () => {
                   </Card>
                 )}
 
-                <Card className="shadow-elegant">
-                  <CardHeader>
-                    <CardTitle>AI Analysis & Actions</CardTitle>
-                    <CardDescription>
-                      Choose how you want to process your content
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {text && (
-                      <div className="p-4 bg-muted/50 rounded-lg max-h-32 overflow-y-auto">
-                        <div className="text-sm text-muted-foreground mb-2">Preview:</div>
-                        <p className="text-sm line-clamp-3">{text.substring(0, 200)}...</p>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Button 
-                        onClick={handleSummarize} 
-                        disabled={processing || !text.trim()}
-                        className="h-auto py-4 flex-col gap-2"
-                      >
-                        {processing ? (
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                        ) : (
-                          <Sparkles className="w-6 h-6" />
-                        )}
-                        <div>
-                          <div className="font-semibold">Summarize</div>
-                          <div className="text-xs opacity-80">Get a concise summary</div>
-                        </div>
-                      </Button>
-                      <Button 
-                        onClick={handleAnalyze} 
-                        disabled={processing || !text.trim()}
-                        variant="secondary"
-                        className="h-auto py-4 flex-col gap-2"
-                      >
-                        {processing ? (
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                        ) : (
-                          <BarChart3 className="w-6 h-6" />
-                        )}
-                        <div>
-                          <div className="font-semibold">Analyze</div>
-                          <div className="text-xs opacity-80">Extract insights & themes</div>
-                        </div>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {text && (
+                <div className="grid gap-6 lg:grid-cols-2 items-start">
                   <Card className="shadow-elegant">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MessageCircle className="w-5 h-5" />
-                        Chat with AI
-                      </CardTitle>
+                      <CardTitle>AI Analysis & Actions</CardTitle>
                       <CardDescription>
-                        Ask questions about your content
+                        Choose how you want to process your content
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="p-0">
-                      <ChatInterface context={text} />
+                    <CardContent className="space-y-4">
+                      {text && (
+                        <div className="p-4 bg-muted/50 rounded-lg max-h-32 overflow-y-auto">
+                          <div className="text-sm text-muted-foreground mb-2">Preview:</div>
+                          <p className="text-sm line-clamp-3">{text.substring(0, 200)}...</p>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button 
+                          onClick={handleSummarize} 
+                          disabled={processing || !text.trim()}
+                          className="h-auto py-4 flex-col gap-2"
+                        >
+                          {processing ? (
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-6 h-6" />
+                          )}
+                          <div>
+                            <div className="font-semibold">Summarize</div>
+                            <div className="text-xs opacity-80">Get a concise summary</div>
+                          </div>
+                        </Button>
+                        <Button 
+                          onClick={handleAnalyze} 
+                          disabled={processing || !text.trim()}
+                          variant="secondary"
+                          className="h-auto py-4 flex-col gap-2"
+                        >
+                          {processing ? (
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                          ) : (
+                            <BarChart3 className="w-6 h-6" />
+                          )}
+                          <div>
+                            <div className="font-semibold">Analyze</div>
+                            <div className="text-xs opacity-80">Extract insights & themes</div>
+                          </div>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
-                )}
+
+                  {text && (
+                    <Card className="shadow-elegant flex flex-col h-[500px]">
+                      <CardHeader className="flex-shrink-0 pb-3">
+                        <CardTitle className="flex items-center gap-2">
+                          <MessageCircle className="w-5 h-5" />
+                          Chat with AI
+                        </CardTitle>
+                        <CardDescription>
+                          Ask questions about your content
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-1 min-h-0 p-4 pt-0">
+                        <ChatInterface context={text} />
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </div>
             </TabsContent>
           </Tabs>

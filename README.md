@@ -21,36 +21,42 @@
 ## ✨ Features
 
 ### 🔍 **AI-Powered Text Analysis**
+
 - **Sentiment Analysis** - Detect emotional tone (positive, negative, neutral, mixed)
 - **Theme Extraction** - Identify key topics and subjects
 - **Keyword Discovery** - Extract important terms and phrases
 - **Real-time Processing** - Instant analysis with OpenAI GPT-4o-mini
 
 ### 💬 **Intelligent Chat Interface**
+
 - **Context-Aware Conversations** - Chat about your analyzed content
 - **Memory Retention** - AI remembers conversation history
 - **Interactive Q&A** - Ask questions about your text
 - **Real-time Responses** - Seamless chat experience
 
 ### 📝 **Multiple Input Methods**
+
 - **Direct Text Input** - Type or paste content directly
 - **File Upload** - Support for text files (.txt, .md, .rtf)
 - **Web Scraping** - Extract content from any URL
 - **Drag & Drop** - Easy file handling
 
 ### 📊 **Smart Content Processing**
+
 - **Auto-summarization** - Generate concise summaries
 - **Content Preview** - See processed content before analysis
 - **Source Tracking** - Track where your content came from
 - **Word & Character Count** - Real-time content statistics
 
 ### 🎨 **Beautiful User Experience**
+
 - **Modern UI** - Clean, responsive design with Tailwind CSS
 - **Dark/Light Mode** - Adaptive theme system
 - **Smooth Animations** - Elegant transitions and interactions
 - **Mobile Responsive** - Works perfectly on all devices
 
 ### 🔐 **Secure & Scalable**
+
 - **User Authentication** - Secure login with Supabase Auth
 - **Data Privacy** - Your content is processed securely
 - **Serverless Functions** - Scalable Edge Functions
@@ -61,24 +67,27 @@
 ## 💡 Usage
 
 ### 📄 Text Analysis
+
 1. **Input your content** via text, file upload, or web scraping
 2. **Choose analysis type** - Summary or detailed analysis
 3. **Get instant insights** - Sentiment, themes, and keywords
 4. **Chat with AI** about your content for deeper understanding
 
 ### 🌐 Web Scraping
+
 ```typescript
 // Automatically extracts content from web pages
-const url = "https://example.com/article"
+const url = "https://example.com/article";
 // ContextIQ handles parsing and cleaning
 ```
 
 ### 💬 AI Chat
+
 ```typescript
 // Context-aware conversations
-"What are the main themes in this article?"
-"Can you explain the sentiment analysis?"
-"Summarize the key points for me"
+"What are the main themes in this article?";
+"Can you explain the sentiment analysis?";
+"Summarize the key points for me";
 ```
 
 ---
@@ -86,6 +95,7 @@ const url = "https://example.com/article"
 ## 🏗️ Architecture
 
 ### Frontend Stack
+
 - **React 18** - Modern React with hooks
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling
@@ -94,6 +104,7 @@ const url = "https://example.com/article"
 - **Vite** - Fast build tool and dev server
 
 ### Backend Stack
+
 - **Supabase** - Backend-as-a-Service
   - Authentication & user management
   - PostgreSQL database
@@ -104,34 +115,10 @@ const url = "https://example.com/article"
 
 ---
 
-## 🔧 Configuration
-
-### Supabase Setup
-1. Create a new Supabase project
-2. Copy the URL and anon key to your `.env.local`
-3. Run the included migrations:
-   ```sql
-   -- User logs table for analysis history
-   CREATE TABLE contextiq_logs (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     user_id UUID REFERENCES auth.users(id),
-     text TEXT,
-     result TEXT,
-     type VARCHAR(50),
-     created_at TIMESTAMP DEFAULT NOW()
-   );
-   ```
-
-### OpenAI Configuration
-- Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
-- Set billing information for production use
-- Monitor usage in the OpenAI dashboard
-
----
-
 ## 🎯 Examples
 
 ### Analyzing a Blog Post
+
 ```typescript
 const content = `
 Artificial intelligence is revolutionizing how we work and live.
@@ -146,9 +133,10 @@ AI is making our world more efficient and innovative.
 ```
 
 ### Web Content Analysis
+
 ```typescript
 // Scrape and analyze any webpage
-const url = "https://techcrunch.com/latest-ai-article"
+const url = "https://techcrunch.com/latest-ai-article";
 // Automatically extracts main content and provides insights
 ```
 
@@ -183,10 +171,8 @@ const url = "https://techcrunch.com/latest-ai-article"
 
 Having issues? We're here to help!
 
-- 📧 **Email**: support@contextiq.com
-- 💬 **Discord**: [Join our community](https://discord.gg/contextiq)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/contextiq/issues)
-- 📚 **Documentation**: [Full Docs](https://docs.contextiq.com)
+- 📧 **Email**: kingclinn40931@gmail.com
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/ClintoKe/contextiq/issues)
 
 ---
 
@@ -197,4 +183,3 @@ Having issues? We're here to help!
 ⭐ Star us on GitHub if you find ContextIQ helpful!
 
 </div>
-

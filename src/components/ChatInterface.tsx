@@ -120,9 +120,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }
 
   return (
-    <Card className={`flex flex-col h-[600px] ${className}`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2">
+    <div className={`flex flex-col h-full max-h-[400px] ${className}`}>
+      <div className="pb-3">
+        <div className="flex items-center gap-2 font-semibold">
           <Bot className="h-5 w-5" />
           AI Chat Assistant
           {context && (
@@ -130,12 +130,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               (Analyzing provided content)
             </span>
           )}
-        </CardTitle>
-      </CardHeader>
+        </div>
+      </div>
 
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-          <div className="space-y-4 pb-4">
+      <div className="flex-1 flex flex-col min-h-0">
+        <ScrollArea className="flex-1 min-h-0" ref={scrollAreaRef}>
+          <div className="space-y-4 p-1">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -144,7 +144,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <Avatar className="h-8 w-8 mt-1">
+                  <Avatar className="h-8 w-8 mt-1 flex-shrink-0">
                     <AvatarFallback>
                       <Bot className="h-4 w-4" />
                     </AvatarFallback>
@@ -152,13 +152,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 )}
                 
                 <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                  className={`max-w-[75%] rounded-lg px-3 py-2 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground ml-auto'
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words">
+                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
                     {message.content}
                   </p>
                   <span className="text-xs opacity-60 mt-1 block">
@@ -167,7 +167,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
 
                 {message.role === 'user' && (
-                  <Avatar className="h-8 w-8 mt-1">
+                  <Avatar className="h-8 w-8 mt-1 flex-shrink-0">
                     <AvatarFallback>
                       <User className="h-4 w-4" />
                     </AvatarFallback>
@@ -178,7 +178,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <Avatar className="h-8 w-8 mt-1">
+                <Avatar className="h-8 w-8 mt-1 flex-shrink-0">
                   <AvatarFallback>
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
@@ -196,7 +196,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         </ScrollArea>
 
-        <div className="p-4 border-t">
+        <div className="pt-3 border-t mt-3 flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={input}
@@ -205,6 +205,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               placeholder="Ask me anything about the content..."
               disabled={isLoading}
               className="flex-1"
+              size="sm"
             />
             <Button
               onClick={sendMessage}
@@ -219,7 +220,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
