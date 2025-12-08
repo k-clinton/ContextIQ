@@ -38,6 +38,51 @@ const extractPDFText = async (file: File): Promise<string> => {
   }
 }
 
+// DOCX extraction helper function
+const extractDOCXText = async (file: File): Promise<string> => {
+  try {
+    const mammoth = await import('mammoth')
+    const arrayBuffer = await file.arrayBuffer()
+    const result = await mammoth.extractRawText({ arrayBuffer })
+    return result.value.trim()
+  } catch (error) {
+    console.error('DOCX extraction error:', error)
+    throw new Error('Failed to extract text from DOCX file')
+  }
+}
+
+// Image OCR helper function
+const extractImageText = async (file: File): Promise<string> => {
+  try {
+    const Tesseract = await import('tesseract.js')
+    
+    // Create image URL for processing
+    const imageUrl = URL.createObjectURL(file)
+    
+    try {
+      const { data: { text } } = await Tesseract.recognize(
+        imageUrl,
+        'eng',
+        {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`)
+            }
+          }
+        }
+      )
+      
+      return text.trim()
+    } finally {
+      // Clean up the object URL
+      URL.revokeObjectURL(imageUrl)
+    }
+  } catch (error) {
+    console.error('Image OCR error:', error)
+    throw new Error('Failed to extract text from image')
+  }
+}
+
 interface FileUploadProps {
   onFileSelect: (content: string, fileName: string) => void
   accept?: string
@@ -47,8 +92,8 @@ interface FileUploadProps {
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileSelect,
-  accept = '.txt,.md,.pdf,.doc,.docx,.rtf,.csv',
-  maxSize = 10,
+  accept = '.txt,.md,.pdf,.doc,.docx,.rtf,.csv,.jpg,.jpeg,.png,.gif,.bmp,.webp',
+  maxSize = 15,
   className
 }) => {
   const [isDragging, setIsDragging] = useState(false)
@@ -68,17 +113,45 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         case 'pdf':
           try {
             content = await extractPDFText(file)
+            toast.info('Extracting text from PDF...')
           } catch (pdfError) {
-            toast.error('Failed to extract text from PDF. Please convert to text first.')
+            toast.error('Failed to extract text from PDF. The file may be corrupted or password-protected.')
+            setIsProcessing(false)
+            return
+          }
+          break
+        case 'docx':
+          try {
+            content = await extractDOCXText(file)
+            toast.info('Extracting text from Word document...')
+          } catch (docxError) {
+            toast.error('Failed to extract text from DOCX file. Please try saving as .txt first.')
             setIsProcessing(false)
             return
           }
           break
         case 'doc':
-        case 'docx':
-          toast.error('Word documents are not yet supported. Please save as .txt first.')
+          toast.error('Legacy .doc files are not supported. Please save as .docx or .txt first.')
           setIsProcessing(false)
           return
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif':
+        case 'bmp':
+        case 'webp':
+          try {
+            toast.info('Extracting text from image using OCR...')
+            content = await extractImageText(file)
+            if (!content || content.length < 5) {
+              throw new Error('No readable text found in the image')
+            }
+          } catch (ocrError) {
+            toast.error('Failed to extract text from image. Please ensure the image contains clear, readable text.')
+            setIsProcessing(false)
+            return
+          }
+          break
         case 'txt':
         case 'md':
         case 'csv':
@@ -218,10 +291,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 or click to browse files (max {maxSize}MB)
               </p>
               <p className="text-xs text-muted-foreground">
-                Supported: TXT, MD, CSV, RTF, PDF files
+                Supported: TXT, MD, CSV, RTF, PDF, DOCX files, and Images
               </p>
               <div className="text-xs text-muted-foreground/80 mt-2">
-                Note: Word files (.doc/.docx) need to be converted to text format first
+                <div>📄 Documents: TXT, MD, CSV, RTF, PDF, DOCX</div>
+                <div>🖼️ Images: JPG, PNG, GIF, BMP, WEBP (OCR)</div>
+                <div>Note: Legacy .doc files not supported - use .docx instead</div>
               </div>
             </div>
           </>
