@@ -7,7 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Brain, LogOut, Sparkles, MessageCircle, BarChart3, Loader2 } from 'lucide-react';
+import { Brain, LogOut, Sparkles, MessageCircle, BarChart3, Loader2, Upload, Globe, FileText } from 'lucide-react';
+import { ChatInterface } from '@/components/ChatInterface';
+import { FileUpload } from '@/components/ui/file-upload';
+import { WebScraper } from '@/components/WebScraper';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -16,6 +19,11 @@ const Dashboard = () => {
   const [text, setText] = useState('');
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('text');
+  const [contentSource, setContentSource] = useState<{
+    type: 'text' | 'file' | 'web';
+    source?: string;
+  }>({ type: 'text' });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,6 +49,20 @@ const Dashboard = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
+  };
+
+  const handleFileUpload = (content: string, fileName: string) => {
+    setText(content);
+    setContentSource({ type: 'file', source: fileName });
+    setActiveTab('analysis');
+    toast.success(`File "${fileName}" loaded successfully!`);
+  };
+
+  const handleWebContent = (content: string, url: string) => {
+    setText(content);
+    setContentSource({ type: 'web', source: url });
+    setActiveTab('analysis');
+    toast.success('Web content extracted successfully!');
   };
 
   const handleSummarize = async () => {
@@ -151,49 +173,149 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <Card className="mb-8 shadow-elegant">
-            <CardHeader>
-              <CardTitle>Input Text</CardTitle>
-              <CardDescription>
-                Paste or type any text you want to analyze
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="Enter text here..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                className="min-h-[200px] resize-none"
-              />
-              <div className="flex gap-2">
-                <Button 
-                  onClick={handleSummarize} 
-                  disabled={processing || !text.trim()}
-                  className="flex-1"
-                >
-                  {processing ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="text" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Text Input
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                Upload File
+              </TabsTrigger>
+              <TabsTrigger value="web" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Web Scraper
+              </TabsTrigger>
+              <TabsTrigger value="analysis" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Analysis
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="text" className="mt-6">
+              <Card className="shadow-elegant">
+                <CardHeader>
+                  <CardTitle>Manual Text Input</CardTitle>
+                  <CardDescription>
+                    Paste or type any text you want to analyze
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    placeholder="Enter text here..."
+                    value={text}
+                    onChange={(e) => {
+                      setText(e.target.value);
+                      setContentSource({ type: 'text' });
+                    }}
+                    className="min-h-[300px] resize-none"
+                  />
+                  {text && (
+                    <div className="text-sm text-muted-foreground">
+                      {text.length} characters • {text.split(/\s+/).length} words
+                    </div>
                   )}
-                  Summarize
-                </Button>
-                <Button 
-                  onClick={handleAnalyze} 
-                  disabled={processing || !text.trim()}
-                  className="flex-1"
-                  variant="secondary"
-                >
-                  {processing ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                  )}
-                  Analyze
-                </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="upload" className="mt-6">
+              <FileUpload onFileSelect={handleFileUpload} />
+            </TabsContent>
+
+            <TabsContent value="web" className="mt-6">
+              <WebScraper onContentExtracted={handleWebContent} />
+            </TabsContent>
+
+            <TabsContent value="analysis" className="mt-6">
+              <div className="space-y-6">
+                {contentSource.source && (
+                  <Card className="bg-muted/50">
+                    <CardContent className="pt-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Content loaded from:
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {contentSource.type === 'file' && <Upload className="w-4 h-4" />}
+                        {contentSource.type === 'web' && <Globe className="w-4 h-4" />}
+                        {contentSource.type === 'text' && <FileText className="w-4 h-4" />}
+                        <span className="font-medium truncate">{contentSource.source}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Card className="shadow-elegant">
+                  <CardHeader>
+                    <CardTitle>AI Analysis & Actions</CardTitle>
+                    <CardDescription>
+                      Choose how you want to process your content
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {text && (
+                      <div className="p-4 bg-muted/50 rounded-lg max-h-32 overflow-y-auto">
+                        <div className="text-sm text-muted-foreground mb-2">Preview:</div>
+                        <p className="text-sm line-clamp-3">{text.substring(0, 200)}...</p>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Button 
+                        onClick={handleSummarize} 
+                        disabled={processing || !text.trim()}
+                        className="h-auto py-4 flex-col gap-2"
+                      >
+                        {processing ? (
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-6 h-6" />
+                        )}
+                        <div>
+                          <div className="font-semibold">Summarize</div>
+                          <div className="text-xs opacity-80">Get a concise summary</div>
+                        </div>
+                      </Button>
+                      <Button 
+                        onClick={handleAnalyze} 
+                        disabled={processing || !text.trim()}
+                        variant="secondary"
+                        className="h-auto py-4 flex-col gap-2"
+                      >
+                        {processing ? (
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : (
+                          <BarChart3 className="w-6 h-6" />
+                        )}
+                        <div>
+                          <div className="font-semibold">Analyze</div>
+                          <div className="text-xs opacity-80">Extract insights & themes</div>
+                        </div>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {text && (
+                  <Card className="shadow-elegant">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageCircle className="w-5 h-5" />
+                        Chat with AI
+                      </CardTitle>
+                      <CardDescription>
+                        Ask questions about your content
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <ChatInterface context={text} />
+                    </CardContent>
+                  </Card>
+                )}
               </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
+          </Tabs>
 
           {result && (
             <Card className="shadow-elegant animate-in slide-in-from-bottom-4">

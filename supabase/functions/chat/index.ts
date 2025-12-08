@@ -11,38 +11,47 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { message, context, conversation_history = [] } = await req.json();
     
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    if (!message || message.trim().length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Messages array is required' }),
+        JSON.stringify({ error: 'Message is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not configured');
     }
 
-    console.log('Starting chat with Lovable AI...');
+    console.log('Starting chat with OpenAI...');
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Prepare context and conversation
+    const systemMessage = {
+      role: 'system',
+      content: `You are ContextIQ, a helpful AI assistant that answers questions about content. ${
+        context ? `Here is the context to reference:\n\n${context.substring(0, 4000)}` : 'Answer questions helpfully and accurately.'
+      }\n\nProvide clear, concise answers based on the context and conversation history.`
+    };
+
+    const messages = [
+      systemMessage,
+      ...conversation_history,
+      { role: 'user', content: message }
+    ];
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are ContextIQ, a helpful AI assistant that answers questions about webpage content. Provide clear, concise answers based on the context provided by the user.'
-          },
-          ...messages
-        ],
-        stream: true,
+        model: 'gpt-4o-mini',
+        messages: messages,
+        max_tokens: 1000,
+        temperature: 0.7,
       }),
     });
 
@@ -57,19 +66,25 @@ Deno.serve(async (req) => {
         );
       }
       
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(
-          JSON.stringify({ error: 'AI credits exhausted. Please add credits to continue.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'Invalid API key. Please check your OpenAI API key.' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       throw new Error(`AI API error: ${response.status}`);
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
-    });
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+
+    console.log('Chat response generated successfully');
+
+    return new Response(
+      JSON.stringify({ response: aiResponse }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(
