@@ -98,3 +98,32 @@ All colors MUST be HSL.
   }
 }
 
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .shadow-elegant {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+  
+  .bg-surface {
+    @apply bg-card;
+  }
+  
+  .text-foreground-muted {
+    @apply text-muted-foreground;
+  }
+  
+  .bg-background-accent {
+    @apply bg-accent/5;
+  }
+  
+  .primary-hover {
+    @apply hover:brightness-110;
+  }
+}
+

@@ -178,7 +178,7 @@ Having issues? We're here to help!
 
 <div align="center">
 
-**Made with ❤️ by CKTech**
+**Made with ❤️ by KCTech**
 
 ⭐ Star us on GitHub if you find ContextIQ helpful!
 
