@@ -11,6 +11,7 @@ import { Brain, LogOut, Sparkles, MessageCircle, BarChart3, Loader2, Upload, Glo
 import { ChatInterface } from '@/components/ChatInterface';
 import { FileUpload } from '@/components/ui/file-upload';
 import { WebScraper } from '@/components/WebScraper';
+import { SimpleThemeToggle } from '@/components/ui/theme-toggle';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -156,6 +157,7 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-foreground-muted">{user?.email}</span>
+            <SimpleThemeToggle />
             <Button variant="outline" size="sm" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out

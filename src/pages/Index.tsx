@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SimpleThemeToggle } from "@/components/ui/theme-toggle";
 import { Sparkles, Brain, BarChart3, Lock } from "lucide-react";
 
 const Index = () => {
@@ -22,9 +23,12 @@ const Index = () => {
                 ContextIQ
               </span>
             </div>
-            <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>
-              Sign In
-            </Button>
+            <div className="flex items-center gap-3">
+              <SimpleThemeToggle />
+              <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>
+                Sign In
+              </Button>
+            </div>
           </div>
         </nav>
 

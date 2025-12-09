@@ -31,3 +31,12 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Executables
+acli.exe
+*.exe
+
+# Secrets and sensitive files
+secrets/
+*.key
+*.pem
