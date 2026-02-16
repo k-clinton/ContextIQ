@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from './ui/avatar'
 import { Send, Bot, User, Loader2 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from './ui/use-toast'
+import { chatWithAI } from '@/lib/openai'
 
 interface Message {
   id: string
@@ -65,18 +66,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setIsLoading(true)
 
     try {
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: {
-          message: input.trim(),
-          context: context,
-          conversation_history: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        }
-      })
-
-      if (error) throw error
+      const data = await chatWithAI(
+        input.trim(),
+        context,
+        messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      )
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),

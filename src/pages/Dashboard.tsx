@@ -12,6 +12,7 @@ import { ChatInterface } from '@/components/ChatInterface';
 import { FileUpload } from '@/components/ui/file-upload';
 import { WebScraper } from '@/components/WebScraper';
 import { SimpleThemeToggle } from '@/components/ui/theme-toggle';
+import { analyzeText, summarizeText } from '@/lib/openai';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -76,21 +77,21 @@ const Dashboard = () => {
     setResult(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('summarize', {
-        body: { text }
-      });
-
-      if (error) throw error;
+      const data = await summarizeText(text);
 
       setResult({ type: 'summary', content: data.summary });
       
-      // Save to logs
-      await supabase.from('contextiq_logs').insert({
-        user_id: user?.id,
-        text: text.substring(0, 500),
-        result: data.summary,
-        type: 'summary'
-      });
+      // Save to logs (will fail silently if table doesn't exist)
+      try {
+        await supabase.from('contextiq_logs').insert({
+          user_id: user?.id,
+          text: text.substring(0, 500),
+          result: data.summary,
+          type: 'summary'
+        });
+      } catch (logError) {
+        console.warn('Failed to save log:', logError);
+      }
 
       toast.success('Summary generated!');
     } catch (error: any) {
@@ -111,20 +112,21 @@ const Dashboard = () => {
     setResult(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('analyze', {
-        body: { text }
-      });
-
-      if (error) throw error;
+      const data = await analyzeText(text);
 
       setResult({ type: 'analysis', content: data.analysis });
       
-      await supabase.from('contextiq_logs').insert({
-        user_id: user?.id,
-        text: text.substring(0, 500),
-        result: JSON.stringify(data.analysis),
-        type: 'analyze'
-      });
+      // Save to logs (will fail silently if table doesn't exist)
+      try {
+        await supabase.from('contextiq_logs').insert({
+          user_id: user?.id,
+          text: text.substring(0, 500),
+          result: JSON.stringify(data.analysis),
+          type: 'analyze'
+        });
+      } catch (logError) {
+        console.warn('Failed to save log:', logError);
+      }
 
       toast.success('Analysis complete!');
     } catch (error: any) {
