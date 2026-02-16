@@ -3,6 +3,34 @@
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
+// Helper function to handle API errors with better messages
+async function handleOpenAIError(response: Response) {
+  const errorText = await response.text();
+  let errorData;
+  try {
+    errorData = JSON.parse(errorText);
+  } catch {
+    errorData = { error: { message: errorText } };
+  }
+
+  console.error('OpenAI API error:', response.status, errorData);
+
+  if (response.status === 429) {
+    // Rate limit error
+    if (errorData.error?.message?.includes('quota')) {
+      throw new Error('OpenAI API quota exceeded. Please check your billing at https://platform.openai.com/account/billing');
+    } else {
+      throw new Error('OpenAI API rate limit reached. Please wait a moment and try again.');
+    }
+  } else if (response.status === 401) {
+    throw new Error('Invalid OpenAI API key. Please check your configuration.');
+  } else if (response.status === 400) {
+    throw new Error(`Invalid request: ${errorData.error?.message || 'Unknown error'}`);
+  } else {
+    throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || 'Unknown error'}`);
+  }
+}
+
 export async function analyzeText(text: string) {
   if (!OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured');
@@ -59,9 +87,7 @@ export async function analyzeText(text: string) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('OpenAI API error:', response.status, errorText);
-    throw new Error(`OpenAI API error: ${response.status}`);
+    await handleOpenAIError(response);
   }
 
   const data = await response.json();
@@ -102,9 +128,7 @@ export async function summarizeText(text: string) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('OpenAI API error:', response.status, errorText);
-    throw new Error(`OpenAI API error: ${response.status}`);
+    await handleOpenAIError(response);
   }
 
   const data = await response.json();
@@ -146,9 +170,7 @@ export async function chatWithAI(message: string, context?: string, conversation
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('OpenAI API error:', response.status, errorText);
-    throw new Error(`OpenAI API error: ${response.status}`);
+    await handleOpenAIError(response);
   }
 
   const data = await response.json();
